@@ -8,30 +8,30 @@ function addEventListener(isUpdate) {
       event.stopImmediatePropagation()
       const el = event.currentTarget;
       const data = {
-        tag: el.tagName.toLowerCase()
+        $tag: el.tagName.toLowerCase()
       }
       if (type === 'click') {
         // 拿到点击元素的内容
         // event.target.tagName.toLowerCase()
-        data.value = el.innerText.replace(/\r?\n/g, ' ')
+        data.$value = el.innerText.replace(/\r?\n/g, ' ')
       } else if (type === 'input') {
-        data.value = el.value
+        data.$value = el.value
       }
       const { wtLib, wtPage } = el.dataset
-      const { params, name } = this.$route ?? {}
+      const { name } = this.$route ?? {}
       // 同时上报 页面参数
-      if (params) {
-        Object.keys(params).map(key => {
-          const value = params[key]
-          return {
-            value,
-            index: window.location.href.indexOf(value)
-          }
-        }).sort(i => i.index).forEach((param, index) => {
-          data[`urlParam${index + 1}`] = param.value
-        })
-      }
-      data.pageId = wtPage || name || ''
+      // if (params) {
+      //   Object.keys(params).map(key => {
+      //     const value = params[key]
+      //     return {
+      //       value,
+      //       index: window.location.href.indexOf(value)
+      //     }
+      //   }).sort(i => i.index).forEach((param, index) => {
+      //     data[`urlParam${index + 1}`] = param.value
+      //   })
+      // }
+      data.$pageId = wtPage || name || ''
       const wt = createWt(wtLib)
       wt.track(eventName, data)
     }

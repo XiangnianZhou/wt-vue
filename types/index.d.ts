@@ -13,5 +13,6 @@ export class Wt {
 }
 
 export function createWt (): Wt
+export function createWt (host?: string, project?: string, logstore?: string): Wt
 export function initWt (host: string, project: string, logstore: string): Wt
 export const wtMixin: Mixin

@@ -1,5 +1,5 @@
 const UAParser = require('ua-parser-js')
-const Tracker = require('./ali-tracker')
+const { AliLogTracker } = require('./ali-tracker')
 
 const CACHE_DEVICE_ID = '__wt_device_id'
 const CACHE_USER_ID = '__wt_user_id'
@@ -105,7 +105,7 @@ function getWtCache() {
 
 class Tracking {
   constructor(host, project, logstore) {
-    this.logger = new Tracker(host, project, logstore)
+    this.logger = new AliLogTracker(host, project, logstore)
   }
 
   track(event, data) {
@@ -124,6 +124,7 @@ class Tracking {
       // wtVersion: '0.1.0',
       $url: window.location.href,
       $ip: window.__$ip || '',
+      $cityId: window.__$cid || '',
       $city: window.__$city || '',
       $country: window.__$country || '',
       $latestReferrer: '',
@@ -156,13 +157,29 @@ function createWt(host, project, logstore) {
   if (wtCache) {
     return wtCache
   }
-  const wt = new Wt(host, project, logstore)
+  const wt = new Tracking(host, project, logstore)
   wtCache = wt
   return wt
 }
 
 function initWt (host, project, logstore) {
-  wt = createWt(host, project, logstore)
+  const wt = createWt(host, project, logstore)
+  if (window.returnCitySN) {
+    const {
+      cip = '',
+      cid = '',
+      cname = ''
+    } = window.returnCitySN
+    
+    window.__$ip = cip
+    window.__$cid = cid
+    if (/^\d+$/.test(cid)) {
+      window.__$city = cname
+    } else {
+      window.__$country = cname
+    }
+  }
+
   if (!deviceId) {
     createDeviceId()
     const baseInfo = getDeviceInfo()
@@ -170,6 +187,7 @@ function initWt (host, project, logstore) {
       ...baseInfo
     })
   }
+  wtCache = wt
   return wt
 }
 
