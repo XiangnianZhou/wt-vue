@@ -95,7 +95,7 @@ function getDeviceInfo() {
   }
 }
 
-exports.getWtCache = function getWtCache() {
+function getWtCache() {
   return {
     userId: localStorage.getItem(CACHE_USER_ID),
     deviceId: localStorage.getItem(CACHE_DEVICE_ID),
@@ -103,7 +103,7 @@ exports.getWtCache = function getWtCache() {
   }
 }
 
-exports.Tracking = class Tracking {
+class Tracking {
   constructor(host, project, logstore) {
     this.logger = new Tracker(host, project, logstore)
   }
@@ -152,7 +152,7 @@ exports.Tracking = class Tracking {
 }
 
 let wtCache = null
-exports.createWt = function createWt(host, project, logstore) {
+function createWt(host, project, logstore) {
   if (wtCache) {
     return wtCache
   }
@@ -161,7 +161,7 @@ exports.createWt = function createWt(host, project, logstore) {
   return wt
 }
 
-exports.initWt = function initWt (host, project, logstore) {
+function initWt (host, project, logstore) {
   wt = createWt(host, project, logstore)
   if (!deviceId) {
     createDeviceId()
@@ -172,3 +172,8 @@ exports.initWt = function initWt (host, project, logstore) {
   }
   return wt
 }
+
+exports.getWtCache = getWtCache
+exports.Tracking = Tracking
+exports.initWt = initWt
+exports.createWt = createWt
