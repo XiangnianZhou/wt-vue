@@ -1,41 +1,75 @@
 const { createWt } = require('./wt')
 
+function getDataset(dataset) {
+  const data = {}
+  if (dataset) {
+    Object.keys(dataset).forEach(key => {
+      if (/^wt/.test(key)) {
+        const newKey = key.replace(/wt(.)/, ($1, $2) => $2.toLowerCase())
+        data[newKey] = dataset[key]
+      }
+    })
+  }
+  return data
+}
+
+const eventCallbacks = {}
+function createHandler(eventName) {
+  if (eventCallbacks[eventName]) return eventCallbacks[eventName]
+  const fn = function (event) {
+    event.stopImmediatePropagation()
+    const el = event.currentTarget
+    const tag = el.tagName.toLowerCase()
+    const data = {
+      $tag: tag,
+      $type: event.type || ''
+    }
+    if (tag === 'input' || tag === 'textarea') {
+      data.$value = el.value
+    } else {
+      data.$value = el.innerText.replace(/\r?\n/g, ' ')
+    }
+    const { dataset } = el
+    const { name } = this.$route ?? {}
+    const datasets = getDataset(dataset)
+    data.$pageId = name || ''
+    const wt = createWt()
+    wt.track(eventName, {
+      ...data,
+      ...datasets
+    })
+  }
+  eventCallbacks[eventName] = fn
+  return fn
+}
+
+function createVueHandler(event, el, type) {
+  el.__wt_flag = true
+  return function() {
+    const data = {
+      $type: type,
+      $value: el.value || '' // vue 组件一般比较复杂，不以 innerText 为value
+    }
+    const attrs = el.$attrs ?? {}
+    if (typeof attrs === 'object') {
+      Object.keys(attrs).forEach(key => {
+          const reg = /^data-wt-/
+          if (reg.test(key)) {
+              const newKey = key.replace(reg, '')
+              data[newKey] = attrs[key]
+          }
+      })
+    }
+    data.$pageId = name || ''
+    const wt = createWt()
+    wt.track(event, data)
+  }
+}
+
 function addEventListener(isUpdate) {
   const refs = this.$refs
   const refsKeys = Object.keys(refs).filter(i => /^wt_/.test(i))
-  function createHandler(eventName, type) {
-    return (event) => {
-      event.stopImmediatePropagation()
-      const el = event.currentTarget;
-      const data = {
-        $tag: el.tagName.toLowerCase()
-      }
-      if (type === 'click') {
-        // 拿到点击元素的内容
-        // event.target.tagName.toLowerCase()
-        data.$value = el.innerText.replace(/\r?\n/g, ' ')
-      } else if (type === 'input') {
-        data.$value = el.value
-      }
-      const { wtLib, wtPage } = el.dataset
-      const { name } = this.$route ?? {}
-      // 同时上报 页面参数
-      // if (params) {
-      //   Object.keys(params).map(key => {
-      //     const value = params[key]
-      //     return {
-      //       value,
-      //       index: window.location.href.indexOf(value)
-      //     }
-      //   }).sort(i => i.index).forEach((param, index) => {
-      //     data[`urlParam${index + 1}`] = param.value
-      //   })
-      // }
-      data.$pageId = wtPage || name || ''
-      const wt = createWt(wtLib)
-      wt.track(eventName, data)
-    }
-  }
+
   refsKeys.forEach(ref => {
     const eventName = ref.substr(3)
     let els = refs[ref] // ref + v-for, els 是一个数组
@@ -46,17 +80,18 @@ function addEventListener(isUpdate) {
     els.forEach(element => {
       if (!element) return
       let el = element
-      if (el.$el) {
-        // ref 可能指向一个组件
-        el = el.$el
-      }
       const eventMatch = eventName.match(/[^_]+_([^_]+)/)
       if (eventMatch) {
         const eventType = eventMatch[1]
-        if (isUpdate) {
-          el.removeEventListener(eventType, createHandler.call(this, eventName, eventType))
+        
+        if (isUpdate && !el._isVue) {
+          el.removeEventListener(eventType, createHandler.call(this, eventName))
         }
-        el.addEventListener(eventType, createHandler.call(this, eventName, eventType), false)
+        if (el._isVue && !el.__wt_flag) {
+          el.$on(eventType, createVueHandler.call(this, eventName, el, eventType))
+        } else if (!el._isVue) {
+          el.addEventListener(eventType, createHandler.call(this, eventName), false)
+        }
       }
     })
   })

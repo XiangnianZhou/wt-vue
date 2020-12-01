@@ -108,7 +108,7 @@ class Tracking {
     this.logger = new AliLogTracker(host, project, logstore)
   }
 
-  track(event, data) {
+  track(event, data = {}) {
     // 需先调用 login
     if (!deviceId) {
       this.login()
@@ -172,9 +172,9 @@ function initWt (host, project, logstore) {
     } = window.returnCitySN
     
     window.__$ip = cip
-    window.__$cid = cid
     if (/^\d+$/.test(cid)) {
       window.__$city = cname
+      window.__$cid = cid
     } else {
       window.__$country = cname
     }
