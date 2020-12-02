@@ -1,4 +1,4 @@
-const { createWt } = require('./wt')
+const { creatVueWt } = require('./wt')
 
 function getDataset(dataset) {
   const data = {}
@@ -16,7 +16,7 @@ function getDataset(dataset) {
 const eventCallbacks = {}
 function createHandler(eventName) {
   if (eventCallbacks[eventName]) return eventCallbacks[eventName]
-  const fn = function (event) {
+  const fn = (event) => {
     event.stopImmediatePropagation()
     const el = event.currentTarget
     const tag = el.tagName.toLowerCase()
@@ -33,7 +33,7 @@ function createHandler(eventName) {
     const { name } = this.$route ?? {}
     const datasets = getDataset(dataset)
     data.$pageId = name || ''
-    const wt = createWt()
+    const wt = creatVueWt(this)
     wt.track(eventName, {
       ...data,
       ...datasets
@@ -45,7 +45,7 @@ function createHandler(eventName) {
 
 function createVueHandler(event, el, type) {
   el.__wt_flag = true
-  return function() {
+  return () => {
     const data = {
       $type: type,
       $value: el.value || '' // vue 组件一般比较复杂，不以 innerText 为value
@@ -61,7 +61,7 @@ function createVueHandler(event, el, type) {
       })
     }
     data.$pageId = name || ''
-    const wt = createWt()
+    const wt = creatVueWt(this)
     wt.track(event, data)
   }
 }
@@ -83,10 +83,9 @@ function addEventListener(isUpdate) {
       const eventMatch = eventName.match(/[^_]+_([^_]+)/)
       if (eventMatch) {
         const eventType = eventMatch[1]
-        
-        if (isUpdate && !el._isVue) {
-          el.removeEventListener(eventType, createHandler.call(this, eventName))
-        }
+        // if (isUpdate && !el._isVue) {
+        //   el.removeEventListener(eventType, createHandler.call(this, eventName))
+        // }
         if (el._isVue && !el.__wt_flag) {
           el.$on(eventType, createVueHandler.call(this, eventName, el, eventType))
         } else if (!el._isVue) {

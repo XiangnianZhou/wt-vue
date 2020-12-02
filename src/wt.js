@@ -106,6 +106,10 @@ function getWtCache() {
 class Tracking {
   constructor(host, project, logstore) {
     this.logger = new AliLogTracker(host, project, logstore)
+    this.host = host
+    this.project = project
+    this.logstore = logstore
+    this.meta = {}
   }
 
   track(event, data = {}) {
@@ -130,6 +134,7 @@ class Tracking {
       $latestReferrer: '',
       $latestReferrerHost: '',
       $timestap: Date.now(),
+      ...this.meta,
       ...data,
       json: JSON.stringify(data.json || {})
     }
@@ -160,6 +165,35 @@ function createWt(host, project, logstore) {
   const wt = new Tracking(host, project, logstore)
   wtCache = wt
   return wt
+}
+
+function creatVueWt(vue) {
+  const initalWt = createWt()
+  if (!initalWt) {
+    console.error('未初始化埋点')
+    return {}
+  }
+  const isVue = vue && vue._isVue
+  if (isVue) {
+    const { host, project, logstore } = initalWt
+    const wt = new Tracking(host, project, logstore)
+    const {
+      wtIsLandingPage,
+      productNo,
+      productVersion,
+      title = ''
+    } = vue.$route.meta
+    if (wtIsLandingPage && productNo && productVersion) {
+      wt.meta.productNo = productNo
+      wt.meta.productVersion = productVersion
+    }
+    if (title) {
+      wt.meta.pageTitle = title
+    }
+    return wt
+  } else {
+    return initalWt
+  }
 }
 
 function initWt (host, project, logstore) {
@@ -195,3 +229,4 @@ exports.getWtCache = getWtCache
 exports.Tracking = Tracking
 exports.initWt = initWt
 exports.createWt = createWt
+exports.creatVueWt = creatVueWt

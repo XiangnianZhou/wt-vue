@@ -41,9 +41,9 @@ AliLogTracker.prototype = {
       httpRequest_.send(null);
     }
     catch (ex) {
-      if (window && window.console && typeof window.console.log === 'function') {
-        console.log("Failed to log to ali log service because of this exception:\n" + ex);
-        console.log("Failed log data:", url);
+      if (window && window.console && typeof window.console.error === 'function') {
+        console.error("Failed to log to ali log service because of this exception:\n" + ex);
+        console.error("Failed log data:", url);
       }
     }
   }
