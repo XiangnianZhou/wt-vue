@@ -134,6 +134,7 @@ class Tracking {
       $latestReferrer: '',
       $latestReferrerHost: '',
       $timestap: Date.now(),
+      $type: 'unknown',
       ...this.meta,
       ...data,
       json: JSON.stringify(data.json || {})

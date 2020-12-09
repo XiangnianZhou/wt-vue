@@ -1,4 +1,8 @@
-const { creatVueWt } = require('./wt')
+const { creatVueWt, createWt } = require('./wt')
+
+
+let intoRouterTime = ''
+let currentRouter = ''
 
 function getDataset(dataset) {
   const data = {}
@@ -26,6 +30,7 @@ function createHandler(eventName) {
     }
     if (tag === 'input' || tag === 'textarea') {
       data.$value = el.value
+      data.$type = 'input' // 'input' 和 'textarea' 的事件都置为 input 类型
     } else {
       data.$value = el.innerText.replace(/\r?\n/g, ' ')
     }
@@ -83,9 +88,6 @@ function addEventListener(isUpdate) {
       const eventMatch = eventName.match(/[^_]+_([^_]+)/)
       if (eventMatch) {
         const eventType = eventMatch[1]
-        // if (isUpdate && !el._isVue) {
-        //   el.removeEventListener(eventType, createHandler.call(this, eventName))
-        // }
         if (el._isVue && !el.__wt_flag) {
           el.$on(eventType, createVueHandler.call(this, eventName, el, eventType))
         } else if (!el._isVue) {
@@ -99,8 +101,34 @@ function addEventListener(isUpdate) {
 exports.wtMixin = {
   mounted() {
     addEventListener.call(this)
+    window.addEventListener('beforeunload', () => {
+      createWt().track('pageOut', {
+        $type: 'pageOut',
+        pageId: currentRouter,
+        duration: Date.now() - intoRouterTime,
+      })
+    })
   },
   updated() {
     addEventListener.call(this, true)
+  },
+  beforeRouteLeave(to, from, next) {
+    creatVueWt(this).track('pageOut', {
+      $type: 'pageOut',
+      pageId: from.name || from.path,
+      duration: Date.now() - intoRouterTime,
+    })
+    next()
+  },
+  beforeRouteEnter(to, from, next) {
+    intoRouterTime = Date.now()
+    currentRouter = from.name || from.path
+    creatVueWt(this).track('routerChange', {
+      $type: 'routerChange',
+      to: to.name || to.path,
+      from: currentRouter,
+      pageId: to.name,
+    })
+    next()
   }
 }
