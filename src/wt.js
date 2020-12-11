@@ -182,7 +182,8 @@ function creatVueWt(vue) {
       wtIsLandingPage,
       productNo,
       productVersion,
-      title = ''
+      title = '',
+      wtPublic = {}
     } = vue.$route.meta
     if (wtIsLandingPage && productNo && productVersion) {
       wt.meta.productNo = productNo
@@ -191,6 +192,9 @@ function creatVueWt(vue) {
     if (title) {
       wt.meta.pageTitle = title
     }
+    Object.keys(wtPublic).forEach(key => {
+      wt.meta[key] = wtPublic[key]
+    })
     return wt
   } else {
     return initalWt
