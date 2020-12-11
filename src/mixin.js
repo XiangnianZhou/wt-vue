@@ -1,8 +1,10 @@
 const { creatVueWt, createWt } = require('./wt')
+const { getRouterMetaData } = require('./util')
 
 
 let intoRouterTime = ''
 let currentRouter = ''
+let routerMeta = {}
 
 function getDataset(dataset) {
   const data = {}
@@ -106,6 +108,7 @@ exports.wtMixin = {
         $type: 'pageOut',
         pageId: currentRouter,
         duration: Date.now() - intoRouterTime,
+        ...getRouterMetaData(routerMeta)
       })
     })
   },
@@ -117,17 +120,20 @@ exports.wtMixin = {
       $type: 'pageOut',
       pageId: from.name || from.path,
       duration: Date.now() - intoRouterTime,
+      ...getRouterMetaData(from.meta)
     })
     next()
   },
   beforeRouteEnter(to, from, next) {
     intoRouterTime = Date.now()
     currentRouter = from.name || from.path
+    routerMeta = to.meta
     creatVueWt(this).track('routerChange', {
       $type: 'routerChange',
       to: to.name || to.path,
       from: currentRouter,
       pageId: to.name,
+      ...getRouterMetaData(to.meta)
     })
     next()
   }

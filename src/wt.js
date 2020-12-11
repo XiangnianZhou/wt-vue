@@ -1,5 +1,6 @@
 const UAParser = require('ua-parser-js')
 const { AliLogTracker } = require('./ali-tracker')
+const { getRouterMetaData } = require('./util')
 
 const CACHE_DEVICE_ID = '__wt_device_id'
 const CACHE_USER_ID = '__wt_user_id'
@@ -178,23 +179,10 @@ function creatVueWt(vue) {
   if (isVue) {
     const { host, project, logstore } = initalWt
     const wt = new Tracking(host, project, logstore)
-    const {
-      wtIsLandingPage,
-      productNo,
-      productVersion,
-      title = '',
-      wtPublic = {}
-    } = vue.$route.meta
-    if (wtIsLandingPage && productNo && productVersion) {
-      wt.meta.productNo = productNo
-      wt.meta.productVersion = productVersion
+    wt.meta = {
+      ...wt.meta,
+      ...getRouterMetaData(vue.$route.meta)
     }
-    if (title) {
-      wt.meta.pageTitle = title
-    }
-    Object.keys(wtPublic).forEach(key => {
-      wt.meta[key] = wtPublic[key]
-    })
     return wt
   } else {
     return initalWt
