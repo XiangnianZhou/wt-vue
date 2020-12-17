@@ -100,17 +100,19 @@ function addEventListener(isUpdate) {
   })
 }
 
+function beforeunloadHandler() {
+  createWt().track('pageOut', {
+    $type: 'pageOut',
+    pageId: currentRouter,
+    duration: Date.now() - intoRouterTime,
+    ...getRouterMetaData(routerMeta)
+  })
+}
+
 exports.wtMixin = {
   mounted() {
     addEventListener.call(this)
-    window.addEventListener('beforeunload', () => {
-      createWt().track('pageOut', {
-        $type: 'pageOut',
-        pageId: currentRouter,
-        duration: Date.now() - intoRouterTime,
-        ...getRouterMetaData(routerMeta)
-      })
-    })
+    window.addEventListener('beforeunload', beforeunloadHandler)
   },
   updated() {
     addEventListener.call(this, true)
