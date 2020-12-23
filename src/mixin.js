@@ -6,6 +6,13 @@ let intoRouterTime = ''
 let currentRouter = ''
 let routerMeta = {}
 
+const CACHE_FIRST_DAY = '__wt_first_day'
+const wtCacheDay = new Date(+localStorage.getItem(CACHE_FIRST_DAY))
+const now = new Date()
+const isTody = wtCacheDay.getFullYear() === now.getFullYear()
+  && wtCacheDay.getMonth() === now.getMonth()
+  && wtCacheDay.getDate() === now.getDate()
+
 function getDataset(dataset) {
   const data = {}
   if (dataset) {
@@ -132,9 +139,10 @@ exports.wtMixin = {
     routerMeta = to.meta
     creatVueWt(this).track('routerChange', {
       $type: 'routerChange',
-      to: to.name || to.path,
-      from: currentRouter,
-      pageId: to.name,
+      $to: to.name || to.path,
+      $from: currentRouter,
+      $pageId: to.name,
+      $isFirstDay: +isTody,
       ...getRouterMetaData(to.meta)
     })
     next()
