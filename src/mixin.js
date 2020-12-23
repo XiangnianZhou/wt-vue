@@ -110,7 +110,7 @@ function addEventListener(isUpdate) {
 function beforeunloadHandler() {
   createWt().track('pageOut', {
     $type: 'pageOut',
-    pageId: currentRouter,
+    $pageId: currentRouter,
     duration: Date.now() - intoRouterTime,
     ...getRouterMetaData(routerMeta)
   })
@@ -127,7 +127,7 @@ exports.wtMixin = {
   beforeRouteLeave(to, from, next) {
     creatVueWt(this).track('pageOut', {
       $type: 'pageOut',
-      pageId: from.name || from.path,
+      $pageId: from.name || from.path,
       duration: Date.now() - intoRouterTime,
       ...getRouterMetaData(from.meta)
     })
