@@ -136,6 +136,7 @@ class Tracking {
       $latestReferrerHost: '',
       $timestap: Date.now(),
       $type: 'unknown',
+      $ua: navigator.userAgent || '',
       ...this.meta,
       ...data,
       json: JSON.stringify(data.json || {})
@@ -175,7 +176,7 @@ function creatVueWt(vue) {
     console.error('未初始化埋点')
     return {}
   }
-  const isVue = vue && vue._isVue
+  const isVue = vue && vue._isVue && vue.$route
   if (isVue) {
     const { host, project, logstore } = initalWt
     const wt = new Tracking(host, project, logstore)
