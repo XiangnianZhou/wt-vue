@@ -212,6 +212,7 @@ function initWt (host, project, logstore) {
     createDeviceId()
     const baseInfo = getDeviceInfo()
     wt.track('deviceInfo', {
+      $type: 'deviceInfo',
       ...baseInfo
     })
   }

@@ -6,12 +6,8 @@ let intoRouterTime = ''
 let currentRouter = ''
 let routerMeta = {}
 
+// 常量 - 待优化
 const CACHE_FIRST_DAY = '__wt_first_day'
-const wtCacheDay = new Date(+localStorage.getItem(CACHE_FIRST_DAY))
-const now = new Date()
-const isTody = wtCacheDay.getFullYear() === now.getFullYear()
-  && wtCacheDay.getMonth() === now.getMonth()
-  && wtCacheDay.getDate() === now.getDate()
 
 function getDataset(dataset) {
   const data = {}
@@ -161,6 +157,12 @@ exports.wtMixin = {
     next()
   },
   beforeRouteEnter(to, from, next) {
+    const wtCacheDay = new Date(+localStorage.getItem(CACHE_FIRST_DAY))
+    const now = new Date()
+    const isTody = wtCacheDay.getFullYear() === now.getFullYear()
+      && wtCacheDay.getMonth() === now.getMonth()
+      && wtCacheDay.getDate() === now.getDate()
+
     intoRouterTime = Date.now()
     currentRouter = from.name || from.path
     routerMeta = to.meta
@@ -169,7 +171,7 @@ exports.wtMixin = {
       $to: to.name || to.path,
       $from: currentRouter,
       $pageId: to.name,
-      $isFirstDay: +isTody,
+      $firstDay: +isTody,
       ...getRouterMetaData(to.meta)
     })
     next()
