@@ -1,31 +1,19 @@
-// http://docs-aliyun.cn-hangzhou.oss.aliyun-inc.com/assets/attach/31752/cn_zh/1462870126706/loghub-tracking.js?spm=a2c63.p38356.879954.10.2ad41eeacILDH5&file=loghub-tracking.js
-function createHttpRequest() {
-  if (window.ActiveXObject) {
-    return new ActiveXObject("Microsoft.XMLHTTP");
+class AliLogTracker {
+  constructor(host, project, logstore) {
+    this.uri_ = `https://${project}.${host}/logstores/${logstore}/track?APIVersion=0.6.0`
+    this.params_ = new Array();
   }
-  else if (window.XMLHttpRequest) {
-    return new XMLHttpRequest();
-  }
-}
-function AliLogTracker(host, project, logstore) {
-  this.uri_ = 'https://' + project + '.' + host + '/logstores/' + logstore + '/track?APIVersion=0.6.0';
-  this.params_ = new Array();
-  // this.httpRequest_ = createHttpRequest();
-}
-AliLogTracker.prototype = {
-  push: function (key, value) {
-    // if (!key || !value) {
-    //   return;
-    // }
+
+  push(key, value) {
     if (!key) {
       return;
     }
     this.params_.push(key);
     this.params_.push(value);
-  },
-  logger: function () {
-    var url = this.uri_;
-    var k = 0;
+  }
+  logger (isKeepalive = false) {
+    let url = this.uri_;
+    let k = 0;
     while (this.params_.length > 0) {
       if (k % 2 == 0) {
         url += '&' + encodeURIComponent(this.params_.shift());
@@ -35,17 +23,22 @@ AliLogTracker.prototype = {
       }
       ++k;
     }
-    try {
-      var httpRequest_ = createHttpRequest();
-      httpRequest_.open("GET", url, true);
-      httpRequest_.send(null);
-    }
-    catch (ex) {
+    fetch(url, {
+      method: 'GET',
+      credentials: 'include',
+      keepalive: isKeepalive, // 目前安卓的兼容性还不错
+      mode: 'cors',
+      credentials: 'omit'
+    }).then(response => {
+      if (response.status > 300 || !response.ok) {
+        return Promise.reject(new Error(response.status))
+      }
+    }).catch(ex => {
       if (window && window.console && typeof window.console.error === 'function') {
         console.error("Failed to log to ali log service because of this exception:\n" + ex);
         console.error("Failed log data:", url);
       }
-    }
+    })
   }
 }
 

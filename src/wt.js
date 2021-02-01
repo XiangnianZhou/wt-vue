@@ -113,7 +113,7 @@ class Tracking {
     this.meta = {}
   }
 
-  track(event, data = {}) {
+  track(event, data = {}, isKeepalive) {
     // 需先调用 login
     if (!deviceId) {
       this.login()
@@ -149,7 +149,7 @@ class Tracking {
     for (const key of keys) {
       this.logger.push(key, formateData[key])
     }
-    this.logger.logger()
+    this.logger.logger(isKeepalive)
   }
 
   login(loginId) {

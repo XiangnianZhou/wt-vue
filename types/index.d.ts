@@ -12,7 +12,7 @@ interface Mixin {
 }
 
 export class Wt {
-  track(event: string, data: EventData): void;
+  track(event: string, data: EventData, isKeepalive?: boolean): void;
   login(loginId: string): void
 }
 

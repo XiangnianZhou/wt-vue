@@ -15,7 +15,8 @@
   "license": "ISC",
   "typings": "types/index.d.ts",
   "dependencies": {
-    "ua-parser-js": "^0.7.22"
+    "ua-parser-js": "^0.7.22",
+    "whatwg-fetch": "^3.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
