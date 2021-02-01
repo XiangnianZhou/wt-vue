@@ -74,18 +74,20 @@ function createVueHandler(event, el, type) {
           }
       })
     }
-    data.$pageId = name || ''
+    // data.$pageId = name || ''
     const wt = creatVueWt(this)
     wt.track(event, data)
   }
 }
 
-function addEventListener(isUpdate) {
+/**
+ * 兼容以前的代码
+ */
+function addEventListener() {
   const refs = this.$refs
   const refsKeys = Object.keys(refs).filter(i => /^wt_/.test(i))
 
   refsKeys.forEach(ref => {
-    const eventName = ref.substr(3)
     let els = refs[ref] // ref + v-for, els 是一个数组
     if (!Array.isArray(els)) {
       els = [els]
@@ -94,6 +96,7 @@ function addEventListener(isUpdate) {
     els.forEach(element => {
       if (!element) return
       let el = element
+      const eventName = ref.substr(3)
       const eventMatch = eventName.match(/[^_]+_([^_]+)/)
       if (eventMatch) {
         const eventType = eventMatch[1]
@@ -113,16 +116,40 @@ function beforeunloadHandler() {
     $pageId: currentRouter,
     duration: Date.now() - intoRouterTime,
     ...getRouterMetaData(routerMeta)
-  })
+  }, true)
 }
 
 exports.wtMixin = {
+  directives: {
+    wt: {
+      inserted (el, binding, vnode) {
+        const directiveValue = binding.value
+        if (!directiveValue) {
+          throw new ReferenceError('无法找到 v-wt 的指令值')
+        }
+
+        const eventMatch = directiveValue.match(/[^_]+_([^_]+)/)
+        if (!eventMatch) {
+          throw new ReferenceError('v-wt 的指令值格式非法，请使用 major_click_okButton 形式')
+        }
+        const eventType = eventMatch[1]
+        const { elm, context, componentInstance } = vnode
+        if (componentInstance) {
+          componentInstance.$on(eventType, createVueHandler.call(context, directiveValue, el, eventType))
+        } else if (elm instanceof HTMLElement) {
+          el.addEventListener(eventType, createHandler.call(context, directiveValue), false)
+        }
+      }
+    }
+  },
   mounted() {
+    // 兼容以前的代码
     addEventListener.call(this)
     window.addEventListener('beforeunload', beforeunloadHandler)
   },
   updated() {
-    addEventListener.call(this, true)
+    // 兼容以前的代码
+    addEventListener.call(this)
   },
   beforeRouteLeave(to, from, next) {
     creatVueWt(this).track('pageOut', {
