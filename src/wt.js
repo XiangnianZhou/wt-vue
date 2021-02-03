@@ -1,5 +1,6 @@
 const UAParser = require('ua-parser-js')
 const { AliLogTracker } = require('./ali-tracker')
+const { SlsWebLogger } = require('./sls-log')
 const { getRouterMetaData } = require('./util')
 
 const CACHE_DEVICE_ID = '__wt_device_id'
@@ -105,12 +106,17 @@ function getWtCache() {
 }
 
 class Tracking {
-  constructor(host, project, logstore) {
-    this.logger = new AliLogTracker(host, project, logstore)
+  constructor(host, project, logstore, isComplex = false) {
+    if (isComplex) {
+      this.logger = new SlsWebLogger(host, project, logstore)
+    } else {
+      this.logger = new AliLogTracker(host, project, logstore)
+    }
     this.host = host
     this.project = project
     this.logstore = logstore
     this.meta = {}
+    this.isComplex = isComplex
   }
 
   track(event, data = {}, isKeepalive) {
@@ -118,7 +124,6 @@ class Tracking {
     if (!deviceId) {
       this.login()
     }
-
     const latestReferrer = window.document.referrer || ''
     const matchHost = latestReferrer.match(/https?:\/\/([^/:]+)/)
 
@@ -145,11 +150,16 @@ class Tracking {
       formateData.$latestReferrer = latestReferrer
       formateData.$latestReferrerHost = matchHost ? matchHost[1] : ''
     }
-    const keys = Object.keys(formateData)
-    for (const key of keys) {
-      this.logger.push(key, formateData[key])
+    
+    if (this.isComplex) {
+      this.logger.send(formateData)
+    } else {
+      const keys = Object.keys(formateData)
+      for (const key of keys) {
+        this.logger.push(key, formateData[key])
+      }
+      this.logger.logger(isKeepalive)
     }
-    this.logger.logger(isKeepalive)
   }
 
   login(loginId) {

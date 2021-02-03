@@ -1,6 +1,6 @@
 class AliLogTracker {
   constructor(host, project, logstore) {
-    this.uri_ = `https://${project}.${host}/logstores/${logstore}/track?APIVersion=0.6.0`
+    this.uri_ = this.url = `https://${project}.${host}/logstores/${logstore}/track?APIVersion=0.6.0`
     this.params_ = new Array();
   }
 
