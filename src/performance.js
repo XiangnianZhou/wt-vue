@@ -1,5 +1,5 @@
 const { getFCP, getFID, getLCP, getTTFB } = require('web-vitals')
-const { Tracking } = require('./wt')
+const { Tracking, createPerformanceWt } = require('./wt')
 
 function keyMeasure(wt) {
   let performanceInfo = Object.create(null)
@@ -49,7 +49,6 @@ function keyMeasure(wt) {
         domComplete: domComplete - responseEnd, // DOM完成时间
         tls: secureConnectionStart ? connectEnd - secureConnectionStart : 0, // TLS 耗时
       })
-      wt.logger.logSending()
     }
   }
   getFCP(joinEntries)
@@ -71,12 +70,12 @@ function resourceMeasure(wt) {
       wt.track('resourcePerformance', {
         $type: 'performance',
         name, // 资源
-        duration,
+        duration, // 请求耗时
         tcp: connectEnd - connectStart, // TCP 链接耗时
       })
     }
   })
-  wt.logger.logSending()
+  wt.logger.logSending() // 发送
   performance.clearResourceTimings()
 }
 
@@ -88,7 +87,7 @@ function startResourceMeasure(wt) {
 }
 
 exports.initPerformace = function initPerformace(host, project, logstore) {
-  const wt = new Tracking(host, project, logstore, true)
+  const wt = createPerformanceWt(host, project, logstore)
   keyMeasure(wt)
   startResourceMeasure(wt)
 }

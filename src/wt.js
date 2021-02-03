@@ -196,9 +196,21 @@ function createWt(host, project, logstore, router) {
   wtCache = wt
   return wt
 }
-
 // 接口兼容
 const creatVueWt = createWt
+
+let performanceCache = null
+function createPerformanceWt(host, project, logstore) {
+  if (performanceCache) {
+    return performanceCache
+  }
+  if (!host || !project || !logstore) {
+    throw new Error('不能初始化性能Wt')
+  }
+  const wt = new Tracking(host, project, logstore, true)
+  performanceCache = wt
+  return wt
+}
 
 function initWt (host, project, logstore, router) {
   const wt = createWt(host, project, logstore, router)
@@ -235,3 +247,4 @@ exports.Tracking = Tracking
 exports.initWt = initWt
 exports.createWt = createWt
 exports.creatVueWt = creatVueWt
+exports.createPerformanceWt = createPerformanceWt

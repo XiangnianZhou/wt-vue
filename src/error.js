@@ -1,22 +1,20 @@
-const { createWt } = require('./wt')
+const { createPerformanceWt } = require('./wt')
 
 exports.initErrorHandler = function() {
   window.addEventListener('error', function(err) {
     const { colno, lineno, filename, message, error: { stack } } = err
-    createWt().track('scriptError', {
+    createPerformanceWt().track('scriptError', {
       $type: 'error',
-      json: {
-        colno, lineno, filename, message, stack
-      }
+      colno, lineno, filename, message, stack
     })
+    console.error(err)
   })
 
   window.addEventListener('unhandledrejection', function(event) {
-    createWt().track('promiseError', {
+    createPerformanceWt().track('promiseError', {
       $type: 'error',
-      json: {
-        message: event.reason
-      }
+      message: event.reason.toString(),
+      stack: event.reason.stack || ''
     })
   })
 }
