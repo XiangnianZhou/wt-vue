@@ -69,6 +69,7 @@ function resourceMeasure(wt) {
         duration
       } = item
       wt.track('resourcePerformance', {
+        $type: 'performance',
         name, // 资源
         duration,
         tcp: connectEnd - connectStart, // TCP 链接耗时

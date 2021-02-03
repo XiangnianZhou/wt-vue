@@ -20,5 +20,5 @@ export function createWt (): Wt
 export function createWt (host?: string, project?: string, logstore?: string): Wt
 export function initPerformace (host?: string, project?: string, logstore?: string): Wt
 export function creatVueWt(vueInstance: Vue): Wt
-export function initWt (host: string, project: string, logstore: string, Vue: any): Wt
+export function initWt (host: string, project: string, logstore: string, Vue?: any, router?: any): Wt
 export const wtMixin: Mixin

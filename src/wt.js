@@ -7,6 +7,8 @@ const CACHE_DEVICE_ID = '__wt_device_id'
 const CACHE_USER_ID = '__wt_user_id'
 const CACHE_FIRST_DAY = '__wt_first_day'
 
+exports.cacheFirstDay = CACHE_FIRST_DAY
+
 let deviceId = localStorage.getItem(CACHE_DEVICE_ID)
 let userId = ''
 
@@ -106,7 +108,7 @@ function getWtCache() {
 }
 
 class Tracking {
-  constructor(host, project, logstore, isComplex = false) {
+  constructor(host, project, logstore, isComplex = false, router) {
     if (isComplex) {
       this.logger = new SlsWebLogger(host, project, logstore)
     } else {
@@ -117,6 +119,7 @@ class Tracking {
     this.logstore = logstore
     this.meta = {}
     this.isComplex = isComplex
+    this.vueRouter = router
   }
 
   track(event, data = {}, isKeepalive) {
@@ -126,6 +129,12 @@ class Tracking {
     }
     const latestReferrer = window.document.referrer || ''
     const matchHost = latestReferrer.match(/https?:\/\/([^/:]+)/)
+
+    if (this.vueRouter && this.vueRouter.currentRoute) {
+      this.meta = {
+        ...getRouterMetaData(this.vueRouter.currentRoute.meta)
+      }
+    }
 
     const formateData = {
       $event: event,
@@ -140,11 +149,14 @@ class Tracking {
       $latestReferrer: '',
       $latestReferrerHost: '',
       $timestap: Date.now(),
-      $type: 'unknown',
       $ua: navigator.userAgent || '',
       ...this.meta,
       ...data,
       json: JSON.stringify(data.json || {})
+    }
+    if (!formateData.$type) {
+      console.error(event, 'wt error：需要指定事件类型')
+      formateData.$type = 'unknown'
     }
     if (latestReferrer && matchHost && matchHost[1] !== window.location.hostname) {
       formateData.$latestReferrer = latestReferrer
@@ -171,37 +183,25 @@ class Tracking {
 }
 
 let wtCache = null
-function createWt(host, project, logstore) {
+function createWt(host, project, logstore, router) {
   if (wtCache) {
     return wtCache
   }
-  const wt = new Tracking(host, project, logstore)
+  
+  if (!host || !project || !logstore) {
+    throw new Error('未初始化 wt, 请先调用 initWt()')
+  }
+
+  const wt = new Tracking(host, project, logstore, false, router)
   wtCache = wt
   return wt
 }
 
-function creatVueWt(vue) {
-  const initalWt = createWt()
-  if (!initalWt) {
-    console.error('未初始化埋点')
-    return {}
-  }
-  const isVue = vue && vue._isVue && vue.$route
-  if (isVue) {
-    const { host, project, logstore } = initalWt
-    const wt = new Tracking(host, project, logstore)
-    wt.meta = {
-      ...wt.meta,
-      ...getRouterMetaData(vue.$route.meta)
-    }
-    return wt
-  } else {
-    return initalWt
-  }
-}
+// 接口兼容
+const creatVueWt = createWt
 
-function initWt (host, project, logstore) {
-  const wt = createWt(host, project, logstore)
+function initWt (host, project, logstore, router) {
+  const wt = createWt(host, project, logstore, router)
   if (window.returnCitySN) {
     const {
       cip = '',

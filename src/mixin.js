@@ -1,13 +1,7 @@
-const { creatVueWt, createWt } = require('./wt')
-const { getRouterMetaData } = require('./util')
-
+const { creatVueWt, createWt, cacheFirstDay } = require('./wt')
 
 let intoRouterTime = ''
 let currentRouter = ''
-let routerMeta = {}
-
-// 常量 - 待优化
-const CACHE_FIRST_DAY = '__wt_first_day'
 
 function getDataset(dataset) {
   const data = {}
@@ -111,8 +105,25 @@ function beforeunloadHandler() {
     $type: 'pageOut',
     $pageId: currentRouter,
     duration: Date.now() - intoRouterTime,
-    ...getRouterMetaData(routerMeta)
   }, true)
+}
+
+exports.wtRouterAffterHook = function wtRouterAffterHook(to, from) {
+  const wtCacheDay = new Date(+localStorage.getItem(cacheFirstDay))
+  const now = new Date()
+  const isTody = wtCacheDay.getFullYear() === now.getFullYear()
+    && wtCacheDay.getMonth() === now.getMonth()
+    && wtCacheDay.getDate() === now.getDate()
+
+  intoRouterTime = Date.now()
+  currentRouter = from.name || from.path
+  creatVueWt().track('routerChange', {
+    $type: 'routerChange',
+    $to: to.name || to.path,
+    $from: currentRouter,
+    $pageId: to.name,
+    $firstDay: +isTody
+  })
 }
 
 exports.wtMixin = {
@@ -152,28 +163,7 @@ exports.wtMixin = {
       $type: 'pageOut',
       $pageId: from.name || from.path,
       duration: Date.now() - intoRouterTime,
-      ...getRouterMetaData(from.meta)
     })
     next()
   },
-  beforeRouteEnter(to, from, next) {
-    const wtCacheDay = new Date(+localStorage.getItem(CACHE_FIRST_DAY))
-    const now = new Date()
-    const isTody = wtCacheDay.getFullYear() === now.getFullYear()
-      && wtCacheDay.getMonth() === now.getMonth()
-      && wtCacheDay.getDate() === now.getDate()
-
-    intoRouterTime = Date.now()
-    currentRouter = from.name || from.path
-    routerMeta = to.meta
-    creatVueWt(this).track('routerChange', {
-      $type: 'routerChange',
-      $to: to.name || to.path,
-      $from: currentRouter,
-      $pageId: to.name,
-      $firstDay: +isTody,
-      ...getRouterMetaData(to.meta)
-    })
-    next()
-  }
 }
