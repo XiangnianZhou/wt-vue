@@ -22,7 +22,7 @@ class SlsWebLogger {
     let url = this.url
     try {
       const httpRequest_ = this.createHttpRequest()
-      httpRequest_.open("POST", url, false)
+      httpRequest_.open("POST", url, true)
       httpRequest_.setRequestHeader("x-log-apiversion", "0.6.0")
       const reqPayload = JSON.stringify({
         __logs__: arr,
