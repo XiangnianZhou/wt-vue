@@ -46,7 +46,7 @@ function keyMeasure(wt) {
         tcp: connectEnd - connectStart, // TCP 链接耗时
         network: responseEnd - responseStart, // 网络交互耗时
         dom: domInteractive - responseEnd, // DOM解析时间
-        domComplete: domComplete - responseEnd, // DOM完成时间
+        complete: domComplete - responseEnd, // DOM完成时间
         tls: secureConnectionStart ? connectEnd - secureConnectionStart : 0, // TLS 耗时
       })
     }
@@ -83,7 +83,7 @@ function startResourceMeasure(wt) {
   setTimeout(() => {
     resourceMeasure(wt)
     startResourceMeasure(wt)
-  }, 1000)
+  }, 1200)
 }
 
 exports.initPerformace = function initPerformace(host, project, logstore) {

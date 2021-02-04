@@ -9,21 +9,26 @@ initErrorHandler()
 
 function initVueWt(host, project, logstore, Vue, router) {
   initWt(host, project, logstore, router)
-  Vue.config.errorHandler = function (err, vm, info) {
-    const { message, name, stack } = err
-    createPerformanceWt().track('vueError', {
-      $type: 'error',
-      message: `${name}: ${message}`,
-      info,
-      stack
-    })
-    console.error(err)
+  if (Vue && Vue.config) {
+    Vue.config.errorHandler = function (err, vm, info) {
+      const { message, name, stack } = err
+      createPerformanceWt().track('vueError', {
+        $type: 'error',
+        message: `${name}: ${message}`,
+        info,
+        stack
+      })
+      console.error(err)
+    }
   }
-  if (typeof Vue.mixin === 'function') {
+  
+  if (Vue && typeof Vue.mixin === 'function') {
     Vue.mixin(wtMixin)
   }
 
-  router.afterEach(wtRouterAffterHook)
+  if (router) {
+    router.afterEach(wtRouterAffterHook)
+  }
 }
 
 exports.initWt = initVueWt

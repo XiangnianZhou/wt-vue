@@ -136,20 +136,24 @@ class Tracking {
       }
     }
 
-    const formateData = {
-      $event: event,
+    const edge = {
       $userId: userId || deviceId,
-      $deviceId: deviceId,
-      // wtVersion: '0.1.0',
-      $url: window.location.href,
       $ip: window.__$ip || '',
       $cityId: window.__$cid || '',
       $city: window.__$city || '',
       $country: window.__$country || '',
       $latestReferrer: '',
       $latestReferrerHost: '',
+    }
+
+    const formateData = {
+      $event: event,
+      $deviceId: deviceId,
+      // wtVersion: '0.1.0',
+      $url: window.location.href,
       $timestap: Date.now(),
       $ua: navigator.userAgent || '',
+      ...(this.isComplex ? {} : edge),
       ...this.meta,
       ...data,
       json: JSON.stringify(data.json || {})
