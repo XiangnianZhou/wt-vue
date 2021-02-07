@@ -11,10 +11,11 @@ exports.initErrorHandler = function() {
   })
 
   window.addEventListener('unhandledrejection', function(event) {
+    const err = event.reason
     createPerformanceWt().track('promiseError', {
       $type: 'error',
-      message: event.reason.toString(),
-      stack: event.reason.stack || ''
+      message: JSON.stringify(err.message ?? err),
+      stack: err.stack || ''
     })
   })
 }

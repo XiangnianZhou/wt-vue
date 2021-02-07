@@ -8,7 +8,8 @@ class SlsWebLogger {
     this.host = host //所在区域的host
     this.project = project //project名称
     this.logstore = logstore //logstore名称
-    this.url = 'https://' + project + '.' + host + '/logstores/' + logstore + '/track'
+    this.urlHost = 'https://' + project + '.' + host
+    this.url = this.urlHost + '/logstores/' + logstore + '/track'
     this.arr = []
   }
   createHttpRequest() {

@@ -59,7 +59,7 @@ function keyMeasure(wt) {
 
 function resourceMeasure(wt) {
   performance.getEntriesByType('resource').forEach(item => {
-    const reg = new RegExp(`^${wt.logger.url}`)
+    const reg = new RegExp(`^${wt.logger.urlHost}`)
     if (!reg.test(item.name)) {
       const {
         name,
