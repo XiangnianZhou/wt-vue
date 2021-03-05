@@ -138,10 +138,6 @@ class Tracking {
 
     const edge = {
       $userId: userId || deviceId,
-      $ip: window.__$ip || '',
-      $cityId: window.__$cid || '',
-      $city: window.__$city || '',
-      $country: window.__$country || '',
       $latestReferrer: '',
       $latestReferrerHost: '',
     }
@@ -218,21 +214,6 @@ function createPerformanceWt(host, project, logstore) {
 
 function initWt (host, project, logstore, router) {
   const wt = createWt(host, project, logstore, router)
-  if (window.returnCitySN) {
-    const {
-      cip = '',
-      cid = '',
-      cname = ''
-    } = window.returnCitySN
-    
-    window.__$ip = cip
-    if (/^\d+$/.test(cid)) {
-      window.__$city = cname
-      window.__$cid = cid
-    } else {
-      window.__$country = cname
-    }
-  }
 
   if (!deviceId) {
     createDeviceId()
