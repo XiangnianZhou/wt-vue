@@ -14,6 +14,7 @@ interface Mixin {
 export class Wt {
   track(event: string, data: EventData, isKeepalive?: boolean): void;
   login(loginId: string): void
+  addIgnoreOrigin(origin: string): void
 }
 
 export function createWt (): Wt

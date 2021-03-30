@@ -120,6 +120,7 @@ class Tracking {
     this.meta = {}
     this.isComplex = isComplex
     this.vueRouter = router
+    this._ignoreOrigin = Object.create(null)
   }
 
   track(event, data = {}, isKeepalive) {
@@ -178,6 +179,32 @@ class Tracking {
     if (loginId) {
       userId = loginId
       localStorage.setItem(CACHE_USER_ID, loginId)
+    }
+  }
+
+  addIgnoreOrigin(origin) {
+    if (!origin) return
+    const errlog = () => console.error('wt.addIgnoreOrigin() 参数必须为字符串或字符串数组')
+    const add = key => {
+      if (/^http/.test(key)) {
+        this._ignoreOrigin[key] = true
+      } else {
+        console.error('wt.addIgnoreOrigin() 参数必须以http开头')
+      }
+    }
+
+    if (typeof origin === 'string') {
+      add(origin)
+    } else if (Array.isArray(origin)) {
+      origin.forEach(key => {
+        if (typeof key !== 'string') {
+          errlog()
+          return
+        }
+        add(key)
+      })
+    } else {
+      errlog()
     }
   }
 }

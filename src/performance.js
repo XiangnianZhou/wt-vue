@@ -59,8 +59,10 @@ function keyMeasure(wt) {
 
 function resourceMeasure(wt) {
   performance.getEntriesByType('resource').forEach(item => {
-    const reg = new RegExp(`^${wt.logger.urlHost}`)
-    if (!reg.test(item.name)) {
+    const selftReg = new RegExp(`^${wt.logger.urlHost}`)
+    const isSelf = selftReg.test(item.name)
+    const isIgnore = Object.keys(wt._ignoreOrigin).some(i => item.name.startsWith(i))
+    if (!isSelf && !isIgnore) {
       const {
         name,
         connectEnd,
@@ -90,4 +92,5 @@ exports.initPerformace = function initPerformace(host, project, logstore) {
   const wt = createPerformanceWt(host, project, logstore)
   keyMeasure(wt)
   startResourceMeasure(wt)
+  return wt
 }
