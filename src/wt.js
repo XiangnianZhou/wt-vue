@@ -171,7 +171,7 @@ class Tracking {
       for (const key of keys) {
         this.logger.push(key, formateData[key])
       }
-      this.logger.logger(isKeepalive)
+      return this.logger.logger(isKeepalive)
     }
   }
 

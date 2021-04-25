@@ -24,7 +24,7 @@ class AliLogTracker {
       }
       ++k;
     }
-    fetch(url, {
+    return fetch(url, {
       method: 'GET',
       credentials: 'include',
       keepalive: isKeepalive, // 目前安卓的兼容性还不错
