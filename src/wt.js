@@ -6,11 +6,14 @@ const { getRouterMetaData } = require('./util')
 const CACHE_DEVICE_ID = '__wt_device_id'
 const CACHE_USER_ID = '__wt_user_id'
 const CACHE_FIRST_DAY = '__wt_first_day'
+const CACHE_SESSION_ID = '__wt_session_id'
 
 exports.cacheFirstDay = CACHE_FIRST_DAY
 
+// 全局变量，多Tracking实例共享
 let deviceId = localStorage.getItem(CACHE_DEVICE_ID)
 let userId = ''
+let sessionId = sessionStorage.getItem(CACHE_SESSION_ID)
 
 /**
  * 生成UUid
@@ -81,6 +84,17 @@ function createDeviceId() {
   return deviceId
 }
 
+function createSessionId() {
+  const arr = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q',
+  'R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i',
+  'j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','r',
+  '0','1','2','3','4','5','6','7','8','9']
+  let str = ''
+  for (let i = 0; i < 12; i++) {
+    str += arr[Math.floor(Math.random() * arr.length)]
+  }
+  return `${Date.now()}-${str}`
+}
 
 function getDeviceInfo() {
   const parser = new UAParser()
@@ -107,6 +121,17 @@ function getWtCache() {
   }
 }
 
+function initSessionId() {
+  const isMini = /miniProgram/i.test(navigator.userAgent)
+  const urlMatch = /wt_session_id=([\w\-]+)/.exec(location.search)
+  if (isMini && urlMatch) {
+    sessionId = urlMatch[1]
+  } else {
+    sessionId = sessionStorage.getItem(CACHE_SESSION_ID) || createSessionId()
+  }
+  sessionStorage.setItem(CACHE_SESSION_ID, sessionId)
+}
+
 class Tracking {
   constructor(host, project, logstore, isComplex = false, router) {
     if (isComplex) {
@@ -121,6 +146,14 @@ class Tracking {
     this.isComplex = isComplex
     this.vueRouter = router
     this._ignoreOrigin = Object.create(null)
+  }
+
+  // 同步
+  set sessionId(value) {
+    sessionId = value
+  }
+  get sessionId() {
+    return sessionId
   }
 
   track(event, data = {}, isKeepalive) {
@@ -146,6 +179,7 @@ class Tracking {
     const formateData = {
       $event: event,
       $deviceId: deviceId,
+      $sessionId: sessionId,
       // wtVersion: '0.1.0',
       $url: window.location.href,
       $timestap: Date.now(),
@@ -241,6 +275,8 @@ function createPerformanceWt(host, project, logstore) {
 
 function initWt (host, project, logstore, router) {
   const wt = createWt(host, project, logstore, router)
+
+  initSessionId()
 
   if (!deviceId) {
     createDeviceId()
