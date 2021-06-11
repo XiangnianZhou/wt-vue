@@ -2,7 +2,7 @@ require('whatwg-fetch');
 const { initErrorHandler } = require('./error');
 const { initPerformace } = require('./performance');
 
-const { createWt, initWt, creatVueWt, createPerformanceWt } = require('./wt')
+const { createWt, initWt, createPerformanceWt } = require('./wt')
 const { wtMixin, wtRouterAffterHook } = require('./mixin')
 
 initErrorHandler()
@@ -34,4 +34,3 @@ function initVueWt(host, project, logstore, Vue, router) {
 exports.initWt = initVueWt
 exports.initPerformace = initPerformace
 exports.createWt = createWt
-exports.creatVueWt = creatVueWt

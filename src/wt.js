@@ -139,6 +139,12 @@ class Tracking {
     } else {
       this.logger = new AliLogTracker(host, project, logstore)
     }
+    if (router && router.app) {
+      Object.getPrototypeOf(router.app).$track = this.track.bind(this)
+    } else if (router) {
+      console.error('建议在根Vue实例化之后调用initWt()，否在无法使用Vue.prototype.$track()')
+    }
+    
     this.host = host
     this.project = project
     this.logstore = logstore
@@ -257,8 +263,6 @@ function createWt(host, project, logstore, router) {
   wtCache = wt
   return wt
 }
-// 接口兼容
-const creatVueWt = createWt
 
 let performanceCache = null
 function createPerformanceWt(host, project, logstore) {
@@ -294,5 +298,4 @@ exports.getWtCache = getWtCache
 exports.Tracking = Tracking
 exports.initWt = initWt
 exports.createWt = createWt
-exports.creatVueWt = creatVueWt
 exports.createPerformanceWt = createPerformanceWt

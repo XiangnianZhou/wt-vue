@@ -1,4 +1,4 @@
-const { creatVueWt, createWt, cacheFirstDay } = require('./wt')
+const { createWt, cacheFirstDay } = require('./wt')
 
 let intoRouterTime = ''
 let currentRouter = ''
@@ -37,7 +37,7 @@ function createHandler(eventName) {
     const { name } = this.$route ?? {}
     const datasets = getDataset(dataset)
     data.$pageId = name || ''
-    const wt = creatVueWt(this)
+    const wt = createWt()
     wt.track(eventName, {
       ...data,
       ...datasets
@@ -65,7 +65,7 @@ function createVueHandler(event, el, type) {
       })
     }
     // data.$pageId = name || ''
-    const wt = creatVueWt(this)
+    const wt = createWt()
     wt.track(event, data)
   }
 }
@@ -117,7 +117,7 @@ exports.wtRouterAffterHook = function wtRouterAffterHook(to, from) {
 
   intoRouterTime = Date.now()
   currentRouter = from.name || from.path
-  creatVueWt().track('routerChange', {
+  createWt().track('routerChange', {
     $type: 'routerChange',
     $to: to.name || to.path,
     $from: currentRouter,
@@ -159,7 +159,7 @@ exports.wtMixin = {
     addEventListener.call(this)
   },
   beforeRouteLeave(to, from, next) {
-    creatVueWt(this).track('pageOut', {
+    createWt().track('pageOut', {
       $type: 'pageOut',
       $pageId: from.name || from.path,
       duration: Date.now() - intoRouterTime,
