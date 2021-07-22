@@ -1,4 +1,3 @@
-const UAParser = require('ua-parser-js')
 const { AliLogTracker } = require('./ali-tracker')
 const { SlsWebLogger } = require('./sls-log')
 const { getRouterMetaData } = require('./util')
@@ -97,19 +96,9 @@ function createSessionId() {
 }
 
 function getDeviceInfo() {
-  const parser = new UAParser()
-  const browserInfo = parser.getResult()
-
-  const { device, browser: rawBrowser, os: rawOS } = browserInfo
   return {
-    $model: device.model || '',
-    $os: rawOS.name || '',
-    $manufacturer: device.vendor || '',
-    $osVersion: rawOS.version || '',
     $screenHeight: window.screen.height || '',
     $screenWidth: window.screen.width || '',
-    $browser: rawBrowser.name || '',
-    $browserVersion: rawBrowser.version || '',
   }
 }
 
