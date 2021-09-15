@@ -1,4 +1,5 @@
 interface EventData {
+  json: any,
   [key: string]: string
 }
 
@@ -15,6 +16,6 @@ export class Wt {
 
 export function createWt (): Wt
 export function createWt (host?: string, project?: string, logstore?: string): Wt
-export function initPerformace (host?: string, project?: string, logstore?: string): Wt
+export function initPerformance (host?: string, project?: string, logstore?: string): Wt
 export function initWt (host: string, project: string, logstore: string, Vue?: any, router?: any): Wt
 export const wtMixin: Mixin

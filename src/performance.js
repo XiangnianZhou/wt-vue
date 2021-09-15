@@ -1,5 +1,5 @@
 const { getFCP, getFID, getLCP, getTTFB } = require('web-vitals')
-const { Tracking, createPerformanceWt } = require('./wt')
+const { Tracking, createPerformanceWt } = require('./wt.js')
 
 function keyMeasure(wt) {
   let performanceInfo = Object.create(null)
@@ -88,7 +88,7 @@ function startResourceMeasure(wt) {
   }, 1200)
 }
 
-exports.initPerformace = function initPerformace(host, project, logstore) {
+exports.initPerformance = function initPerformance(host, project, logstore) {
   const wt = createPerformanceWt(host, project, logstore)
   keyMeasure(wt)
   startResourceMeasure(wt)

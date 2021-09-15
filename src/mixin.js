@@ -1,6 +1,6 @@
-const { createWt, cacheFirstDay } = require('./wt')
+const { createWt, cacheFirstDay } = require('./wt.js')
+const { scrollAnchorHandler } = require('./scroll')
 const equal = require('fast-deep-equal')
-
 
 let intoRouterTime = ''
 let currentRouter = ''
@@ -52,7 +52,7 @@ function beforeunloadHandler() {
   }, true)
 }
 
-exports.wtRouterAffterHook = function wtRouterAffterHook(to, from) {
+exports.wtRouterAfterHook = function wtRouterAfterHook(to, from) {
   const wtCacheDay = new Date(+localStorage.getItem(cacheFirstDay))
   const now = new Date()
   const isTody = wtCacheDay.getFullYear() === now.getFullYear()
@@ -174,6 +174,11 @@ exports.wtMixin = {
   mounted() {
     // 兼容以前的代码
     window.addEventListener('beforeunload', beforeunloadHandler)
+    // 滚动监听
+    this.$nextTick(scrollAnchorHandler)
+  },
+  updated() {
+    this.$nextTick(scrollAnchorHandler)
   },
   beforeRouteLeave(to, from, next) {
     createWt().track('pageOut', {

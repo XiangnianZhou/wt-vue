@@ -1,4 +1,4 @@
-const { createPerformanceWt } = require('./wt')
+const { createPerformanceWt } = require('./wt.js')
 
 exports.initErrorHandler = function() {
   window.addEventListener('error', function(err) {
