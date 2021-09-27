@@ -41,12 +41,9 @@ function createVueHandler(eventName, data = {}) {
   return (event = {}) => {
     const wt = createWt()
     const el = event.target
-    if (el && el.tagName) {
-      const tag = el.tagName.toLowerCase()
-      const isInput = tag === 'input' || tag === 'textarea'
-      const { innerText = '' } = el
-      data.$value ??= isInput ? el.value : innerText.replace(/(\r\n?)|\n/g, ' ')
-      data.$type = isInput ? 'input' : data.$type
+    if (el) {
+      const { innerText = '', value } = el
+      data.$value = value || (innerText ? innerText.replace(/(\r\n?)|\n/g, ' ') : data.$value )
     }
     wt.track(eventName, data)
   }
