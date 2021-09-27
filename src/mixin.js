@@ -25,7 +25,7 @@ function createHandler(eventName, data = {}, modifiers = {}) {
       wtData.$type = 'input' // 'input' 和 'textarea' 的事件都置为 input 类型
     } else {
       const { innerText = '' } = el
-      wtData.$value = innerText.replace(/\r?\n/g, ' ')
+      wtData.$value = innerText.replace(/(\r\n?)|\n/g, ' ')
     }
     const { name } = this.$route ?? {}
     wtData.$pageId = name || ''
@@ -37,10 +37,16 @@ function createHandler(eventName, data = {}, modifiers = {}) {
   return fn
 }
 
-function createVueHandler(event, data = {}) {
-  return () => {
+function createVueHandler(eventName, data = {}) {
+  return (event = {}) => {
     const wt = createWt()
-    wt.track(event, data)
+    const el = event.target
+    const tag = el && el.tagName.toLowerCase()
+    const isInput = tag === 'input' || tag === 'textarea'
+    const { innerText = '' } = el
+    data.$value ??= isInput ? el.value : innerText.replace(/(\r\n?)|\n/g, ' ')
+    data.$type = isInput ? 'input' : data.$type
+    wt.track(eventName, data)
   }
 }
 

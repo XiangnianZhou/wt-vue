@@ -12,7 +12,7 @@ const io = new IntersectionObserver(entries => {
       index: anchorIndex,
       $type: 'scrollAnchor',
       show: +item.isIntersecting,
-      name: anchorValue
+      anchorName: anchorValue
     })
   })
 })
