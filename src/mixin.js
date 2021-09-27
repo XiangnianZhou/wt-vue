@@ -41,11 +41,13 @@ function createVueHandler(eventName, data = {}) {
   return (event = {}) => {
     const wt = createWt()
     const el = event.target
-    const tag = el && el.tagName.toLowerCase()
-    const isInput = tag === 'input' || tag === 'textarea'
-    const { innerText = '' } = el
-    data.$value ??= isInput ? el.value : innerText.replace(/(\r\n?)|\n/g, ' ')
-    data.$type = isInput ? 'input' : data.$type
+    if (el && el.tagName) {
+      const tag = el.tagName.toLowerCase()
+      const isInput = tag === 'input' || tag === 'textarea'
+      const { innerText = '' } = el
+      data.$value ??= isInput ? el.value : innerText.replace(/(\r\n?)|\n/g, ' ')
+      data.$type = isInput ? 'input' : data.$type
+    }
     wt.track(eventName, data)
   }
 }
@@ -155,7 +157,7 @@ function removeEvent(el, binding, vnode) {
     handlerList.forEach(item => {
       const { handler, type } = item
       if (componentInstance) {
-        componentInstance.$off(handler)
+        componentInstance.$off(type, handler)
       }
       elm.removeEventListener(type, handler)
     })
