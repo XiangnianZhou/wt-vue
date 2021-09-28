@@ -43,7 +43,12 @@ function createVueHandler(eventName, data = {}) {
     const el = event.target
     if (el) {
       const { innerText = '', value } = el
-      data.$value = value || (innerText ? innerText.replace(/(\r\n?)|\n/g, ' ') : data.$value )
+      data.$value =
+        value || (
+          innerText
+            ? innerText.replace(/(\r\n?)|\n/g, ' ')
+            : (data.$value || ' ')
+        )
     }
     wt.track(eventName, data)
   }
