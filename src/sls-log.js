@@ -59,7 +59,10 @@ class SlsWebLogger {
     const obj = this.transString(originObj)
     this.arr.push(obj)
   }
-  logSending(arr = this.arr) {
+  logSending(throttle) {
+    let { arr } = this
+    // 节流
+    arr = arr.filter((_, index) => !(index % 5))
     if (arr && arr.length > 0) {
       this.logger()
       this.arr = []

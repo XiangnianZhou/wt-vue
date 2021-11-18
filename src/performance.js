@@ -77,7 +77,7 @@ function resourceMeasure(wt) {
       })
     }
   })
-  wt.logger.logSending() // 发送
+  wt.logger.logSending(true /** throttle */) // 发送
   performance.clearResourceTimings()
 }
 
@@ -85,7 +85,7 @@ function startResourceMeasure(wt) {
   setTimeout(() => {
     resourceMeasure(wt)
     startResourceMeasure(wt)
-  }, 1200)
+  }, 3000)
 }
 
 exports.initPerformance = function initPerformance(host, project, logstore) {
