@@ -141,6 +141,7 @@ class Tracking {
     this.isComplex = isComplex
     this.vueRouter = router
     this._ignoreOrigin = Object.create(null)
+    this.pubConfig = Object.create(null)
   }
 
   // 同步
@@ -172,6 +173,7 @@ class Tracking {
     }
 
     const formateData = {
+      ...this.pubConfig,
       $event: event,
       $deviceId: deviceId,
       $sessionId: sessionId,
@@ -235,6 +237,21 @@ class Tracking {
     } else {
       errlog()
     }
+  }
+
+  addPubConfig(pubConfig) {
+    if (pubConfig && typeof pubConfig === 'object') {
+      Object.keys(pubConfig).forEach(key => {
+        if (typeof pubConfig[key] === 'string') {
+          this.pubConfig[key] = pubConfig[key]
+        }
+      })
+    }
+  }
+
+  removePubConfig(key) {
+    if (typeof key !== 'string' || !key) return
+    delete this.pubConfig[key]
   }
 }
 

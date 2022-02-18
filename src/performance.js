@@ -88,9 +88,12 @@ function startResourceMeasure(wt) {
   }, 3000)
 }
 
-exports.initPerformance = function initPerformance(host, project, logstore) {
+exports.initPerformance = function initPerformance(host, project, logstore, Vue) {
   const wt = createPerformanceWt(host, project, logstore)
   keyMeasure(wt)
   startResourceMeasure(wt)
+  if (Vue) {
+    Vue.prototype.$performanceTrack = wt.track.bind(wt)
+  }
   return wt
 }

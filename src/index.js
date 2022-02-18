@@ -8,7 +8,7 @@ const { wtMixin, wtRouterAfterHook } = require('./mixin.js')
 initErrorHandler()
 
 function initVueWt(host, project, logstore, Vue, router) {
-  initWt(host, project, logstore, router)
+  const wt = initWt(host, project, logstore, router)
   if (Vue && Vue.config) {
     Vue.config.errorHandler = function (err, vm, info) {
       const { message, name, stack } = err
@@ -29,6 +29,7 @@ function initVueWt(host, project, logstore, Vue, router) {
   if (router) {
     router.afterEach(wtRouterAfterHook)
   }
+  return wt
 }
 
 exports.initWt = initVueWt
